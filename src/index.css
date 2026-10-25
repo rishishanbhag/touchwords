@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fff7e6;
+  --color-ink: #1c1b29;
+  --color-pink: #ff7eb6;
+  --color-lemon: #ffd84a;
+  --color-mint: #4fe3a4;
+  --color-sky: #6cc6ff;
+  --color-violet: #8b6bff;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  background-image: none;
+  background-size: 18px 18px;
+}
+
+.brutal {
+  border: 3px solid var(--color-ink);
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+.btn {
+  border: 3px solid var(--color-ink);
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform 80ms, box-shadow 80ms;
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-ink);
+}
+.btn:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-violet);
+  outline-offset: 3px;
+}
+
+/* fits ~13 letters on a phone */
+.tile {
+  width: min(2.4rem, calc((100vw - 3rem) / 13));
+  aspect-ratio: 1;
+  border: 3px solid var(--color-ink);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: min(1.25rem, calc((100vw - 3rem) / 22));
+  text-transform: uppercase;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+.shake { animation: shake 250ms 2; }
+
+@keyframes pop {
+  from { transform: scale(0.6) rotate(-6deg); opacity: 0; }
+}
+.pop { animation: pop 200ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shake, .pop { animation: none; }
+}
