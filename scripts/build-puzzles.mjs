@@ -1,4 +1,4 @@
-// Offline: turns data/themes.mjs into src/puzzles.json (one puzzle per day from EPOCH).
+// Offline: turns data/themes.mjs into src/themes.json (browser) and server/days.json (server only).
 import { writeFileSync } from 'node:fs';
 import themes from '../data/themes.mjs';
 import { solve } from '../src/game.js';
@@ -66,5 +66,7 @@ while (days.length < DAYS) {
 }
 // themes stay in the file (indexes unchanged) even if never scheduled
 
-writeFileSync(new URL('../src/puzzles.json', import.meta.url), JSON.stringify({ epoch: EPOCH, themes: themes.map(({ name, words }) => ({ name, words })), days }));
+// themes ship to the browser (needed to check words); the day calendar stays server-side
+writeFileSync(new URL('../src/themes.json', import.meta.url), JSON.stringify(themes.map(({ name, words }) => ({ name, words }))));
+writeFileSync(new URL('../server/days.json', import.meta.url), JSON.stringify({ epoch: EPOCH, days }));
 console.log(`wrote ${days.length} days`);

@@ -1,10 +1,7 @@
-// Day index from the local calendar date (UTC of local y/m/d avoids DST off-by-ones).
-const dayNum = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000;
-export const dayIndex = (epoch, now = new Date()) => dayNum(now) - dayNum(new Date(epoch + 'T00:00'));
-
+// The daily puzzle changes at UTC midnight for everyone
 export function msToMidnight(now = new Date()) {
   const next = new Date(now);
-  next.setHours(24, 0, 0, 0);
+  next.setUTCHours(24, 0, 0, 0);
   return next - now;
 }
 

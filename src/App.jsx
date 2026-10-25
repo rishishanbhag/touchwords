@@ -1,22 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import data from './puzzles.json';
+import themes from './themes.json';
 import { check, isLinked, last, stars } from './game.js';
-import { dayIndex, msToMidnight, emptyStats, recordResult, load, save } from './daily.js';
-
-// ?day=N previews another day (dev/testing); progress for it is still saved under that day
-const override = new URLSearchParams(location.search).get('day');
-const DAY = override !== null ? Number(override) : dayIndex(data.epoch);
-const puzzle = data.days[((DAY % data.days.length) + data.days.length) % data.days.length];
-const theme = data.themes[puzzle.t];
-const NUMBER = DAY + 1;
+import { msToMidnight, emptyStats, recordResult, load, save } from './daily.js';
 
 const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 
-function freshGame() {
-  return { day: DAY, chain: [puzzle.s], status: 'playing' };
-}
-
-function Word({ word, color, linkFirst, linkLast, label }) {
+function Word({ word, color, linkFirst, linkLast, label, bang }) {
   return (
     <div className="flex items-center gap-2 pop" aria-label={label ? `${label}: ${word}` : word}>
       <div className="flex gap-1">
@@ -25,7 +14,8 @@ function Word({ word, color, linkFirst, linkLast, label }) {
           return (
             <span
               key={i}
-              className={`tile ${isLink ? 'bg-violet text-white' : color}`}
+              className={`tile ${isLink ? 'bg-violet text-white' : color} ${bang ? 'bang' : ''}`}
+              style={bang ? { animationDelay: `${i * 45}ms` } : undefined}
             >
               {ch}
             </span>
@@ -75,12 +65,47 @@ function Countdown() {
   return <span className="font-display tabular-nums">{t}</span>;
 }
 
+// Fetches today's puzzle from the server (which owns the calendar and the clock)
 export default function App() {
+  const [today, setToday] = useState(null);
+  const [failed, setFailed] = useState(false);
+
+  const loadToday = useCallback(() => {
+    setFailed(false);
+    fetch('/api/today' + location.search)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(setToday)
+      .catch(() => setFailed(true));
+  }, []);
+  useEffect(loadToday, [loadToday]);
+
+  if (today) return <Game today={today} />;
+  return (
+    <div className="min-h-dvh grid place-items-center px-4 text-center">
+      {failed ? (
+        <div>
+          <p className="font-medium mb-3">Couldn't load today's puzzle.</p>
+          <button className="btn bg-lemon px-6 py-3" onClick={loadToday}>
+            Retry
+          </button>
+        </div>
+      ) : (
+        <p className="font-display text-xl">Loading…</p>
+      )}
+    </div>
+  );
+}
+
+function Game({ today: puzzle }) {
+  const DAY = puzzle.day;
+  const NUMBER = DAY + 1;
+  const theme = themes[puzzle.t];
   const [game, setGame] = useState(() => {
     const saved = load('tw-game', null);
-    // start word check: a regenerated puzzles.json can change what today's puzzle is
-    return saved?.day === DAY && saved.chain?.[0] === puzzle.s ? saved : freshGame();
+    return saved?.day === DAY && saved.chain?.[0] === puzzle.s ? saved : { day: DAY, chain: [puzzle.s], status: 'playing' };
   });
+  const [sol, setSol] = useState(null);
+  const [justWon, setJustWon] = useState(false); // plays the win animation once, not on reload
   const [stats, setStats] = useState(() => load('tw-stats', emptyStats));
   const [typed, setTyped] = useState('');
   const [toast, setToast] = useState('');
@@ -91,6 +116,15 @@ export default function App() {
   useEffect(() => save('tw-stats', stats), [stats]);
 
   const playing = game.status === 'playing';
+
+  // the solution only leaves the server once the game is over
+  useEffect(() => {
+    if (game.status === 'playing' || game.status === 'won' || sol) return;
+    fetch('/api/today?jawaab=1' + location.search.replace('?', '&'))
+      .then((r) => r.json())
+      .then((p) => setSol(p.sol))
+      .catch(() => {});
+  }, [game.status, sol]);
   const need = last(game.chain[game.chain.length - 1]);
   const used = game.chain.length - 1;
 
@@ -101,7 +135,7 @@ export default function App() {
 
   const finish = (status, starCount) => {
     setStats((s) => recordResult(s, DAY, starCount));
-    setTimeout(() => setModal('result'), 700);
+    setTimeout(() => setModal('result'), status === 'won' ? 1900 : 700);
     return status;
   };
 
@@ -117,6 +151,7 @@ export default function App() {
     }
     const chain = [...game.chain, word];
     const won = isLinked(chain, puzzle);
+    if (won) setJustWon(true);
     setGame({ ...game, chain, status: won ? finish('won', stars(chain.length - 1, puzzle.p)) : 'playing' });
     setTyped('');
   }, [game, typed, need]);
@@ -205,7 +240,7 @@ export default function App() {
       </section>
 
       {/* chain */}
-      <main className="w-full max-w-md flex-1 brutal bg-white mt-4 p-3 overflow-y-auto">
+      <main className={`w-full max-w-md flex-1 brutal bg-white mt-4 p-3 ${justWon ? 'overflow-visible board-hit' : 'overflow-y-auto'}`}>
         <Word word={puzzle.s} color="bg-pink" linkLast label="Start" />
         {game.chain.slice(1).map((w) => (
           <div key={w}>
@@ -230,7 +265,7 @@ export default function App() {
         {game.status === 'gaveup' && (
           <>
             <p className="text-sm font-medium mt-3 mb-1">One best chain:</p>
-            {puzzle.sol.map((w) => (
+            {(sol ?? []).map((w) => (
               <div key={w}>
                 <Word word={w} color="bg-white" linkFirst linkLast />
                 <Link />
@@ -241,7 +276,10 @@ export default function App() {
         <div className={playing ? 'opacity-60 mt-4' : ''}>
           {!playing && game.status === 'won' && <Link />}
           {playing && <p className="text-xs font-medium mb-1">…until you reach</p>}
-          <Word word={puzzle.e} color="bg-mint" linkFirst label="End" />
+          <div className={justWon ? 'relative z-10' : ''}>
+            {justWon && <span className="burst" aria-hidden="true" />}
+            <Word word={puzzle.e} color="bg-mint" linkFirst label="End" bang={justWon} />
+          </div>
         </div>
       </main>
 
@@ -347,7 +385,7 @@ export default function App() {
             {'★'.repeat(result) + '☆'.repeat(3 - result)}
           </p>
           <p className="text-center font-medium mt-1">
-            {result ? `${used} word${used === 1 ? '' : 's'} · par ${puzzle.p}` : `Par was ${puzzle.p}: ${puzzle.sol.join(' → ')}`}
+            {result ? `${used} word${used === 1 ? '' : 's'} · par ${puzzle.p}` : `Par was ${puzzle.p}${sol ? ': ' + sol.join(' → ') : ''}`}
           </p>
           <StatsGrid stats={stats} />
           <button className="btn bg-lemon w-full py-3 mt-4" onClick={share}>

@@ -70,6 +70,45 @@ button:focus-visible {
 }
 .pop { animation: pop 200ms ease-out; }
 
+/* win: the END word flies toward the viewer, then slams back with an impact */
+.bang {
+  animation: bang 1100ms cubic-bezier(0.5, 0, 0.2, 1) both;
+  position: relative;
+}
+@keyframes bang {
+  0% { transform: perspective(500px) translateZ(0) rotateX(0) rotateY(0) scale(1); box-shadow: 3px 3px 0 var(--color-ink); }
+  38% { transform: perspective(500px) translateZ(260px) rotateX(-22deg) rotateY(14deg) scale(1.1); box-shadow: 14px 22px 0 rgb(28 27 41 / 0.35); }
+  52% { transform: perspective(500px) translateZ(0) rotateX(8deg) rotateY(0) scale(0.92); box-shadow: 1px 1px 0 var(--color-ink); }
+  66% { transform: perspective(500px) translateZ(40px) rotateX(-4deg) scale(1.06); }
+  80% { transform: perspective(500px) translateZ(0) rotateX(1deg) scale(0.98); }
+  100% { transform: perspective(500px) translateZ(0) rotate(0) scale(1); box-shadow: 3px 3px 0 var(--color-ink); }
+}
+
+/* shockwave ring at the moment of impact */
+.burst {
+  position: absolute;
+  inset: -6px;
+  border: 4px solid var(--color-violet);
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  animation: burst 700ms 520ms ease-out both;
+}
+@keyframes burst {
+  0% { opacity: 0.9; transform: scale(0.9); }
+  100% { opacity: 0; transform: scale(2.2, 3.4); }
+}
+
+/* the whole board takes the hit */
+.board-hit { animation: hit 400ms 520ms linear both; }
+@keyframes hit {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 4px) rotate(-0.6deg); }
+  40% { transform: translate(5px, -4px) rotate(0.5deg); }
+  60% { transform: translate(-3px, 2px); }
+  80% { transform: translate(2px, -1px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .shake, .pop { animation: none; }
+  .shake, .pop, .bang, .burst, .board-hit { animation: none; }
 }

@@ -1,15 +1,16 @@
 import { describe, expect, test } from 'vitest';
-import data from './puzzles.json';
+import calendar from '../server/days.json';
+import shipped from './themes.json';
 import themes from '../data/themes.mjs';
 import probes from '../data/probes.mjs';
 import { solve } from './game.js';
 
 describe.each(themes.map((t, i) => [t.name, t, i]))('theme %s', (name, theme, i) => {
-  const days = data.days.filter((d) => d.t === i);
+  const days = calendar.days.filter((d) => d.t === i);
 
   test('shipped words match the data build', () => {
-    expect(data.themes[i].name).toBe(name);
-    expect(data.themes[i].words).toEqual(theme.words);
+    expect(shipped[i].name).toBe(name);
+    expect(shipped[i].words).toEqual(theme.words);
   });
 
   test('words are clean and unique', () => {
