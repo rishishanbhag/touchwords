@@ -3,11 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A daily themed word-chain puzzle." />
-    <title>Touchwords</title>
+    <meta name="description" content="Touchwords is a free daily word puzzle. Connect a start word to an end word with a chain of themed words, where each word touches the next. New puzzle every day, no signup." />
+    <meta name="keywords" content="daily word puzzle, word game, word chain game, free online puzzle, daily puzzle, word association game, wordle alternative, brain teaser" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="theme-color" content="#FFE23D" />
+    <title>Touchwords – Free Daily Word Puzzle &amp; Word Chain Game</title>
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Touchwords" />
-    <meta property="og:description" content="A daily word-chain puzzle. Link two words, one themed word at a time." />
+    <meta property="og:site_name" content="Touchwords" />
+    <meta property="og:title" content="Touchwords – Free Daily Word Puzzle &amp; Word Chain Game" />
+    <meta property="og:description" content="A free daily word-chain puzzle. Link two words, one themed word at a time. New puzzle every day." />
+    <!-- TODO: add <link rel="canonical"> and "url" in the JSON-LD below once the domain is known -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": ["WebApplication", "Game"],
+          "name": "Touchwords",
+          "alternateName": "Touchwords daily word puzzle",
+          "description": "A free daily word puzzle. Connect a start word to an end word with a chain of themed words, where each word touches the next.",
+          "applicationCategory": "GameApplication",
+          "genre": ["Word game", "Puzzle", "Daily puzzle"],
+          "operatingSystem": "Any (web browser)",
+          "browserRequirements": "Requires JavaScript",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "image": "/og.png"
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Touchwords?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Touchwords is a free daily word puzzle. You get a start word and an end word and must build a chain of themed words between them, where each word touches the next." }
+            },
+            {
+              "@type": "Question",
+              "name": "How often is there a new Touchwords puzzle?",
+              "acceptedAnswer": { "@type": "Answer", "text": "A new puzzle is released every day. Everyone gets the same puzzle, and your streak and stats are tracked." }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Touchwords free?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Touchwords is free to play in your browser with no signup or download." }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
     <!-- og:image / twitter:image should be an absolute URL once the domain is known, e.g. https://your-domain.com/og.png -->
     <meta property="og:image" content="/og.png" />
     <meta property="og:image:width" content="1200" />
@@ -21,6 +67,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Touchwords: Free Daily Word Puzzle</h1>
+      <p>Touchwords is a free daily word-chain game. Connect the start word to the end word with themed words, one at a time. A new puzzle every day. Enable JavaScript to play.</p>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
